@@ -13,19 +13,21 @@ namespace ThreeApi
     {
         public static void Main(string[] args)
         {
+            
             var host = CreateHostBuilder(args).Build();
 
             using (var scope = host.Services.CreateScope())
             {
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
                 try
                 {
                     var dbContext = scope.ServiceProvider.GetService<RoutineDbContext>();
-                    dbContext.Database.EnsureCreated();
+                    bool flag = dbContext.Database.EnsureCreated();
                     dbContext.Database.Migrate();
+                    logger.LogInformation($"Database Migration Success! {flag}");
                 }
                 catch (Exception e)
                 {
-                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
                     logger.LogError(e, "Database Migration Error!");
                 }
             }
