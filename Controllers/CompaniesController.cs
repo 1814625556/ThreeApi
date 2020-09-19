@@ -5,7 +5,9 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using ThreeApi.Entities;
 
 namespace ThreeApi.Controllers
 {
@@ -13,17 +15,16 @@ namespace ThreeApi.Controllers
     [Route("api/companies")]
     public class CompaniesController : ControllerBase
     {
-        [HttpGet(Name = "hellocc")]
-        public string HelloCC()
+        private IOptions<StudentOptions> _studentOption { get; }
+        public CompaniesController(IOptions<StudentOptions> studentOption)
         {
-            return "hello cc";
+            _studentOption = studentOption;
         }
 
-        //[HttpGet(Name = "helloccAsync")]
-        //public async Task<string> HelloCCAsync()
-        //{
-        //    var result = await Task.Run(() => "hello cc async");
-        //    return result;
-        //}
+        [HttpGet("hellocc")]
+        public string HelloCC()
+        {
+            return $"hello cc{_studentOption.Value.Grades}";
+        }
     }
 }

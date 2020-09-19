@@ -12,7 +12,7 @@
     "ThreeApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/companies/hellocc",
+      "launchUrl": "api/companies",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
