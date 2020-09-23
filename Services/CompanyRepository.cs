@@ -4,17 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ThreeApi.Data;
+using ThreeApi.DtoParameters;
 using ThreeApi.Entities;
+using ThreeApi.Models;
 
 namespace ThreeApi.Services
 {
     public class CompanyRepository : ICompanyRepository
     {
         private readonly RoutineDbContext _context;
-        public CompanyRepository(RoutineDbContext context)
+        private readonly IPropertyMappingService _propertyMappingService;
+        public CompanyRepository(RoutineDbContext context, IPropertyMappingService propertyMappingService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            //_propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
+            _propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
         public async Task<IEnumerable<Company>> GetCompaniesAsync()
@@ -92,14 +95,36 @@ namespace ThreeApi.Services
             return await _context.Companies.AnyAsync(x => x.Id == companyId);
         }
 
-        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId)
+        public async Task<IEnumerable<Employee>> GetEmployeesAsync(Guid companyId, EmployeeDtoParameters parameters)
         {
             if (companyId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(companyId));
             }
 
-            return await _context.Employees.Where(x => x.CompanyId == companyId).ToListAsync();
+            var items = _context.Employees.Where(x => x.CompanyId == companyId);
+
+            if (!string.IsNullOrWhiteSpace(parameters.Gender))
+            {
+                parameters.Gender = parameters.Gender.Trim();
+                var gender = Enum.Parse<Gender>(parameters.Gender);
+
+                items = items.Where(x => x.Gender == gender);
+            }
+
+            if (!string.IsNullOrWhiteSpace(parameters.Q))
+            {
+                parameters.Q = parameters.Q.Trim();
+
+                items = items.Where(x => x.EmployeeNo.Contains(parameters.Q)
+                                         || x.FirstName.Contains(parameters.Q)
+                                         || x.LastName.Contains(parameters.Q));
+            }
+
+            var mappingDictionary = _propertyMappingService.GetPropertyMapping<EmployeeDto, Employee>();
+
+            //items = items.ApplySort(parameters.OrderBy, mappingDictionary);
+            return await items.ToListAsync();
         }
 
         public async Task<Employee> GetEmployeeAsync(Guid companyId, Guid employeeId)

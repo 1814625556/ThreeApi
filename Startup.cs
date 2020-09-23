@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,10 @@ namespace ThreeApi
             {
                 option.UseSqlite("Data Source=routine.db");
             });
+
+            //添加AutoMapper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
 
             //每次 http请求都会新建一个实例
             services.AddScoped<ICompanyRepository, CompanyRepository>();
