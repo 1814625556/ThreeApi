@@ -22,28 +22,11 @@ namespace ThreeApi.Controllers
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
         }
 
-        //[HttpGet(Name = nameof(GetEmployeesForCompany))]
-        //public async Task<ActionResult<IEnumerable<EmployeeDto>>>
-        //    GetEmployeesForCompany(Guid companyId,
-        //        [FromQuery] EmployeeDtoParameters parameters)
-        //{
-        //    if (!await _companyRepository.CompanyExistsAsync(companyId))
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var employees = await _companyRepository
-        //        .GetEmployeesAsync(companyId, parameters);
-
-        //    var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
-
-        //    return Ok(employeeDtos);
-        //}
-
-        [HttpGet]
+        //http://localhost:5000/api/companies/bbdee09c-089b-4d30-bece-44df5923716c/employees?Q=Nick
+        [HttpGet(Name = nameof(GetEmployeesForCompany))]
         public async Task<ActionResult<IEnumerable<EmployeeDto>>>
-            GetEmployeesForCompanyDemo1(Guid companyId,
-                string Q)
+            GetEmployeesForCompany(Guid companyId,
+                [FromQuery] EmployeeDtoParameters parameters)
         {
             if (!await _companyRepository.CompanyExistsAsync(companyId))
             {
@@ -51,11 +34,35 @@ namespace ThreeApi.Controllers
             }
 
             var employees = await _companyRepository
-                .GetEmployeesAsync(companyId, new EmployeeDtoParameters() { Q = Q});
+                .GetEmployeesAsync(companyId, parameters);
 
             var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
 
             return Ok(employeeDtos);
         }
+
+        /// <summary>
+        /// 这里的Q 来自于 url 里面的 query
+        /// </summary>
+        /// <param name="companyId"></param>
+        /// <param name="Q"></param>
+        /// <returns></returns>
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<EmployeeDto>>>
+        //    GetEmployeesForCompanyDemo1(Guid companyId,
+        //        string Q)
+        //{
+        //    if (!await _companyRepository.CompanyExistsAsync(companyId))
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var employees = await _companyRepository
+        //        .GetEmployeesAsync(companyId, new EmployeeDtoParameters() { Q = Q});
+
+        //    var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+
+        //    return Ok(employeeDtos);
+        //}
     }
 }
