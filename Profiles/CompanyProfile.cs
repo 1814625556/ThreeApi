@@ -17,6 +17,9 @@ namespace ThreeApi.Profiles
                     dest => dest.CompanyName,
                     opt => opt.MapFrom(src => src.Name));
             CreateMap<CompanyAddDto, Company>();
+            CreateMap<Company, CompanyFullDto>();
+            CreateMap<CompanyAddWithBankruptTimeDto, Company>();
         }
+
     }
 }

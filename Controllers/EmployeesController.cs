@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ThreeApi.DtoParameters;
+using ThreeApi.Entities;
 using ThreeApi.Models;
 using ThreeApi.Services;
 
@@ -39,6 +40,52 @@ namespace ThreeApi.Controllers
             var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
 
             return Ok(employeeDtos);
+        }
+
+        [HttpGet("{employeeId}", Name = nameof(GetEmployeeForCompany))]
+        //[ResponseCache(Duration = 60)]
+        //[HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 1800)]
+        //[HttpCacheValidation(MustRevalidate = true)]
+        public async Task<ActionResult<EmployeeDto>>
+            GetEmployeeForCompany(Guid companyId, Guid employeeId)
+        {
+            if (!await _companyRepository.CompanyExistsAsync(companyId))
+            {
+                return NotFound();
+            }
+
+            var employee = await _companyRepository.GetEmployeeAsync(companyId, employeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            var employeeDto = _mapper.Map<EmployeeDto>(employee);
+
+            return Ok(employeeDto);
+        }
+
+        [HttpPost(Name = nameof(CreateEmployeeForCompany))]
+        public async Task<ActionResult<EmployeeDto>>
+            CreateEmployeeForCompany(Guid companyId, EmployeeAddDto employee)
+        {
+            if (!await _companyRepository.CompanyExistsAsync(companyId))
+            {
+                return NotFound();
+            }
+
+            var entity = _mapper.Map<Employee>(employee);
+
+            _companyRepository.AddEmployee(companyId, entity);
+            await _companyRepository.SaveAsync();
+
+            var dtoToReturn = _mapper.Map<EmployeeDto>(entity);
+
+            return CreatedAtRoute(nameof(GetEmployeeForCompany), new
+            {
+                companyId,
+                employeeId = dtoToReturn.Id
+            }, dtoToReturn);
         }
 
         /// <summary>

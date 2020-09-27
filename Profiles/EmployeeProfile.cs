@@ -17,9 +17,9 @@ namespace ThreeApi.Profiles
                 .ForMember(dest => dest.Age,
                     opt => opt.MapFrom(src => DateTime.Now.Year - src.DateOfBirth.Year));
 
-            //CreateMap<EmployeeAddDto, Employee>();
-            //CreateMap<EmployeeUpdateDto, Employee>();
-            //CreateMap<Employee, EmployeeUpdateDto>();
+            CreateMap<EmployeeAddDto, Employee>();
+            CreateMap<EmployeeUpdateDto, Employee>();
+            CreateMap<Employee, EmployeeUpdateDto>();
         }
     }
 }
