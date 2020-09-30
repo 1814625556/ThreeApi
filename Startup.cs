@@ -3,10 +3,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 using ThreeApi.Data;
 using ThreeApi.Entities;
 using ThreeApi.Services;
@@ -28,8 +30,35 @@ namespace ThreeApi
             //内容协商--Header 里面的 Accept
             services.AddControllers(setup=> {
                 setup.ReturnHttpNotAcceptable = true;
-                //setup.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
-            }).AddXmlDataContractSerializerFormatters();
+            })
+            .AddNewtonsoftJson(setup =>{
+                setup.SerializerSettings.ContractResolver =
+                new CamelCasePropertyNamesContractResolver();
+            })
+            .AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setup =>
+            {
+                setup.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "http://www.baidu.com",
+                        Title = "有错误！！！",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "请看详细信息",
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    problemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+
+                    return new UnprocessableEntityObjectResult(problemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            }); ;
+
+
             services.AddDbContext<RoutineDbContext>(option =>
             {
                 option.UseSqlite("Data Source=routine.db");

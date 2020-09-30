@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using ThreeApi.DtoParameters;
 using ThreeApi.Entities;
@@ -148,6 +149,63 @@ namespace ThreeApi.Controllers
             // 把updateDto映射回entity
 
             _mapper.Map(employee, employeeEntity);
+
+            _companyRepository.UpdateEmployee(employeeEntity);
+
+            await _companyRepository.SaveAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{employeeId}")]
+        public async Task<IActionResult> PartiallyUpdateEmployeeForCompany(
+           Guid companyId,
+           Guid employeeId,
+           JsonPatchDocument<EmployeeUpdateDto> patchDocument)
+        {
+            if (!await _companyRepository.CompanyExistsAsync(companyId))
+            {
+                return NotFound();
+            }
+
+            var employeeEntity = await _companyRepository.GetEmployeeAsync(companyId, employeeId);
+
+            if (employeeEntity == null)
+            {
+                var employeeDto = new EmployeeUpdateDto();
+                patchDocument.ApplyTo(employeeDto, ModelState);
+
+                if (!TryValidateModel(employeeDto))
+                {
+                    return ValidationProblem(ModelState);
+                }
+
+                var employeeToAdd = _mapper.Map<Employee>(employeeDto);
+                employeeToAdd.Id = employeeId;
+
+                _companyRepository.AddEmployee(companyId, employeeToAdd);
+                await _companyRepository.SaveAsync();
+
+                var dtoToReturn = _mapper.Map<EmployeeDto>(employeeToAdd);
+
+                return CreatedAtRoute(nameof(GetEmployeeForCompany), new
+                {
+                    companyId,
+                    employeeId = dtoToReturn.Id
+                }, dtoToReturn);
+            }
+
+            var dtoToPatch = _mapper.Map<EmployeeUpdateDto>(employeeEntity);
+
+            // 需要处理验证错误
+            patchDocument.ApplyTo(dtoToPatch, ModelState);
+
+            if (!TryValidateModel(dtoToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(dtoToPatch, employeeEntity);
 
             _companyRepository.UpdateEmployee(employeeEntity);
 
