@@ -36,6 +36,7 @@ namespace ThreeApi
                 new CamelCasePropertyNamesContractResolver();
             })
             .AddXmlDataContractSerializerFormatters()
+            //Ìí¼Ó 422 ±¨´íÏìÓ¦
             .ConfigureApiBehaviorOptions(setup =>
             {
                 setup.InvalidModelStateResponseFactory = context =>
