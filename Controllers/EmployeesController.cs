@@ -157,6 +157,15 @@ namespace ThreeApi.Controllers
             return NoContent();
         }
 
+    // postman请求实体,对应的 op 还有 replace remove 
+    //http://localhost:5000/api/companies/bbdee09c-089b-4d30-bece-44df5923716c/employees/4b501cb3-d168-4cc0-b375-48fb33f318a4
+    //    [
+    //      {
+    //      "op":"add",
+    //      "path":"/dateOfBirth",
+    //      "value":"1975/1/1"
+    //      }
+    //     ]
         [HttpPatch("{employeeId}")]
         public async Task<IActionResult> PartiallyUpdateEmployeeForCompany(
            Guid companyId,
@@ -206,6 +215,8 @@ namespace ThreeApi.Controllers
             }
 
             _mapper.Map(dtoToPatch, employeeEntity);
+            //这里与上面是有区别的，上面会在实体类型原来的基础上添加，下面的这个 直接替换
+            //employeeEntity = _mapper.Map<Employee>(dtoToPatch);
 
             _companyRepository.UpdateEmployee(employeeEntity);
 

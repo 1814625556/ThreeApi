@@ -31,6 +31,7 @@ namespace ThreeApi
             services.AddControllers(setup=> {
                 setup.ReturnHttpNotAcceptable = true;
             })
+            //配置json,后面再设置 addxml 用于支持 xml类型的数据返回
             .AddNewtonsoftJson(setup =>{
                 setup.SerializerSettings.ContractResolver =
                 new CamelCasePropertyNamesContractResolver();

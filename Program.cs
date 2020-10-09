@@ -38,6 +38,7 @@ namespace ThreeApi
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args).ConfigureAppConfiguration((context,configBuilder)=> {
                 configBuilder.Sources.Clear();
+                //添加自定义json配置文件
                 configBuilder.AddJsonFile("settings/cc.json");
             })
                 .ConfigureWebHostDefaults(webBuilder =>
