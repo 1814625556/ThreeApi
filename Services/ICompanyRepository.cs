@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ThreeApi.DtoParameters;
 using ThreeApi.Entities;
+using ThreeApi.Helpers;
 
 namespace ThreeApi.Services
 {
     public interface ICompanyRepository
     {
+        Task<PagedList<Company>> GetCompaniesAsync(CompanyDtoParameters parameters);
         Task<IEnumerable<Company>> GetCompaniesAsync();
         Task<Company> GetCompanyAsync(Guid companyId);
         Task<IEnumerable<Company>> GetCompaniesAsync(IEnumerable<Guid> companyIds);

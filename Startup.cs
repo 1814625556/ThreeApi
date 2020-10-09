@@ -69,6 +69,7 @@ namespace ThreeApi
             //添加AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+            services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
 
             //每次 http请求都会新建一个实例
             services.AddScoped<ICompanyRepository, CompanyRepository>();
