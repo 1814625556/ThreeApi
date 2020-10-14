@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -77,36 +78,23 @@ namespace ThreeApi.Controllers
                 }));
 
             var companyDtos = _mapper.Map<IEnumerable<CompanyDto>>(companies);
-
             var shapedData = companyDtos.ShapeData(parameters.Fields);
-            //var links = CreateLinksForCompany(parameters, companies.HasPrevious, companies.HasNext);
-
-            // { value: [xxx], links }
-            //var shapedCompaniesWithLinks = shapedData.Select(c =>
-            //{
-            //    var companyDict = c as IDictionary<string, object>;
-            //    var companyLinks = CreateLinksForCompany((Guid)companyDict["Id"], null);
-            //    companyDict.Add("links", companyLinks);
-            //    return companyDict;
-            //});
-
-            //var linkedCollectionResource = new
-            //{
-            //    value = shapedCompaniesWithLinks,
-            //    //links
-            //};
-
             return Ok(shapedData);
-            //var result = await _companyRepository.GetCompaniesAsync();
-            //return Ok(result);
         }
         [HttpGet("{companyId}", Name = nameof(GetCompany))]
-        public async Task<IActionResult> GetCompany(Guid companyId)
+        public async Task<IActionResult> GetCompany(Guid companyId, string fields)
         {
+            if (!_propertyCheckerService.TypeHasProperties<CompanyDto>(fields))
+            {
+                return BadRequest();
+            }
+
             var company = await _companyRepository.GetCompanyAsync(companyId);
             if (company == null)
                 return NotFound();
-            return Ok(company);
+            var friendly = _mapper.Map<CompanyDto>(company)
+               .ShapeData(fields) as IDictionary<string, object>;
+            return Ok(friendly);
         }
 
         [HttpPost(Name = nameof(CreateCompany))]
@@ -115,79 +103,9 @@ namespace ThreeApi.Controllers
             var entity = _mapper.Map<Company>(company);
             _companyRepository.AddCompany(entity);
             await _companyRepository.SaveAsync();
-
             var returnDto = _mapper.Map<CompanyDto>(entity);
-
-            //var links = CreateLinksForCompany(returnDto.Id, null);
-            //var linkedDict = returnDto.ShapeData(null)
-            //    as IDictionary<string, object>;
-
-            //linkedDict.Add("links", links);
-
             return CreatedAtRoute(nameof(GetCompany), new { companyId = returnDto.Id },returnDto);
             //return Ok(returnDto);
         }
-
-        //private IEnumerable<LinkDto> CreateLinksForCompany(Guid companyId, string fields)
-        //{
-        //    var links = new List<LinkDto>();
-
-        //    if (string.IsNullOrWhiteSpace(fields))
-        //    {
-        //        links.Add(
-        //            new LinkDto(Url.Link(nameof(GetCompany), new { companyId }),
-        //                "self",
-        //                "GET"));
-        //    }
-        //    else
-        //    {
-        //        links.Add(
-        //            new LinkDto(Url.Link(nameof(GetCompany), new { companyId, fields }),
-        //                "self",
-        //                "GET"));
-        //    }
-
-
-        //    links.Add(
-        //        new LinkDto(Url.Link(nameof(DeleteCompany), new { companyId }),
-        //            "delete_company",
-        //            "DELETE"));
-
-        //    links.Add(
-        //        new LinkDto(Url.Link(nameof(EmployeesController.CreateEmployeeForCompany), new { companyId }),
-        //            "create_employee_for_company",
-        //            "POST"));
-
-        //    links.Add(
-        //        new LinkDto(Url.Link(nameof(EmployeesController.GetEmployeesForCompany), new { companyId }),
-        //            "employees",
-        //            "GET"));
-
-        //    return links;
-        //}
-
-        //private IEnumerable<LinkDto> CreateLinksForCompany(CompanyDtoParameters parameters, bool hasPrevious, bool hasNext)
-        //{
-        //    var links = new List<LinkDto>();
-
-
-        //    links.Add(new LinkDto(CreateCompaniesResourceUri(parameters, ResourceUriType.CurrentPage),
-        //        "self", "GET"));
-
-        //    if (hasPrevious)
-        //    {
-        //        links.Add(new LinkDto(CreateCompaniesResourceUri(parameters, ResourceUriType.PreviousPage),
-        //            "previous_page", "GET"));
-        //    }
-
-        //    if (hasNext)
-        //    {
-        //        links.Add(new LinkDto(CreateCompaniesResourceUri(parameters, ResourceUriType.NextPage),
-        //            "next_page", "GET"));
-        //    }
-
-        //    return links;
-        //}
-
     }
 }

@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ThreeApi.Entities;
+using ThreeApi.Helpers;
 using ThreeApi.Models;
 
 namespace ThreeApi.Profiles
 {
-    public class CompanyProfile: Profile
+    public class CompanyProfile : Profile
     {
         public CompanyProfile()
         {

@@ -21,8 +21,8 @@ namespace ThreeApi.Helpers
             if (string.IsNullOrWhiteSpace(fields))
             {
                 var propertyInfos =
-                    typeof(TSource).GetProperties(BindingFlags.IgnoreCase | BindingFlags.Public |
-                                                  BindingFlags.Instance);
+                    typeof(TSource).GetProperties(BindingFlags.IgnoreCase | BindingFlags.Public 
+                                                  | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var propertyValue = propertyInfo.GetValue(source);

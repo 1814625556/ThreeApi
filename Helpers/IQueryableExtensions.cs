@@ -60,10 +60,13 @@ namespace ThreeApi.Helpers
                         orderDescending = !orderDescending;
                     }
 
-                    source = source.OrderBy(destinationProperty +
-                                            (orderDescending ? " descending" : " ascending"));
+                    //source = source.OrderBy(destinationProperty + (orderDescending ? " descending" : " ascending"));
+                    source = orderDescending ? source.OrderByDescending(x=>destinationProperty) 
+                        : source.OrderBy(x=>destinationProperty);
+
                 }
             }
+
 
             return source;
         }

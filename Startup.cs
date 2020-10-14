@@ -98,7 +98,7 @@ namespace ThreeApi
                 appBuilder.Run(async context =>
                 {
                     context.Response.StatusCode = 500;
-                    await context.Response.WriteAsync("Unexpected Error!");
+                    await context.Response.WriteAsync("UseExceptionHandler Unexpected Error!");
                 });
             });
 
